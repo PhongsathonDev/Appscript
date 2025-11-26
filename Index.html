@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-color);
+            color: #444;
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 1rem 0;
+        }
+
+        .college-logo {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* สีสถานะ */
+        .bg-present {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .bg-absent {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .bg-late {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+
+        .bg-leave {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar mb-4">
+        <div class="container">
+            <span class="navbar-brand college-logo">
+                <i class="fa-solid fa-graduation-cap me-2 text-primary"></i>
+                วิทยาลัยเทคนิคอำนาจเจริญ
+            </span>
+            <span class="text-muted small">ระบบรายงานการมาเรียน</span>
+        </div>
+    </nav>
+
+    <div class="container pb-5">
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="fw-bold text-dark">ภาพรวมวันนี้</h3>
+                <p class="text-muted">สรุปข้อมูลการเข้าเรียนของนักศึกษาล่าสุด</p>
+            </div>
+        </div>
+
+        <div id="loader" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
+        </div>
+
+        <div id="dashboard" style="display: none;">
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3 col-6">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-card-icon bg-light text-primary me-3">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">ทั้งหมด</p>
+                                <h4 class="mb-0 fw-bold" id="totalCount">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-card-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">มาปกติ</p>
+                                <h4 class="mb-0 fw-bold text-success" id="presentCount">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-card-icon bg-danger bg-opacity-10 text-danger me-3">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">ขาดเรียน</p>
+                                <h4 class="mb-0 fw-bold text-danger" id="absentCount">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card p-3 h-100">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-card-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 text-muted small">สาย/ลา</p>
+                                <h4 class="mb-0 fw-bold text-warning" id="otherCount">0</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <div class="card p-4 h-100">
+                        <h5 class="fw-bold mb-4">สัดส่วนการมาเรียน</h5>
+                        <canvas id="attendanceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <div class="card p-4 h-100">
+                        <h5 class="fw-bold mb-3">รายการล่าสุด</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>วันที่</th>
+                                        <th>ชื่อ-สกุล</th>
+                                        <th>สถานะ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // เมื่อโหลดหน้าเว็บเสร็จ
+        window.onload = function () {
+            google.script.run.withSuccessHandler(renderDashboard).getData();
+        };
+
+        function renderDashboard(data) {
+            // ซ่อน Loader แสดง Dashboard
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+
+            // 1. คำนวณสถิติ
+            let total = data.length;
+            let present = 0;
+            let absent = 0;
+            let other = 0; // สาย หรือ ลา
+
+            // ใช้ 5 รายการล่าสุดสำหรับตาราง
+            const recentData = data.slice(-5).reverse();
+
+            data.forEach(row => {
+                const status = row[4]; // Column E คือ Index 4
+                if (status === 'มา') present++;
+                else if (status === 'ขาด') absent++;
+                else other++;
+            });
+
+            // 2. อัปเดตตัวเลข
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('presentCount').innerText = present;
+            document.getElementById('absentCount').innerText = absent;
+            document.getElementById('otherCount').innerText = other;
+
+            // 3. สร้างกราฟ
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['มา', 'ขาด', 'สาย/ลา'],
+                    datasets: [{
+                        data: [present, absent, other],
+                        backgroundColor: ['#198754', '#dc3545', '#ffc107'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '70%' // ทำให้วงกลมตรงกลางกว้างขึ้น สไตล์ Minimal
+                }
+            });
+
+            // 4. สร้างตาราง
+            const tbody = document.getElementById('tableBody');
+            recentData.forEach(row => {
+                let badgeClass = 'bg-secondary';
+                if (row[4] === 'มา') badgeClass = 'bg-present';
+                else if (row[4] === 'ขาด') badgeClass = 'bg-absent';
+                else if (row[4] === 'สาย') badgeClass = 'bg-late';
+                else if (row[4] === 'ลา') badgeClass = 'bg-leave';
+
+                // จัดรูปแบบวันที่ให้อ่านง่าย (ตัดเอาแค่วันที่)
+                let dateStr = row[0].split('T')[0];
+
+                const tr = `
+          <tr>
+            <td><small class="text-muted">${dateStr}</small></td>
+            <td>${row[2]}</td>
+            <td><span class="status-badge ${badgeClass}">${row[4]}</span></td>
+          </tr>
+        `;
+                tbody.innerHTML += tr;
+            });
+        }
+    </script>
+</body>
+
+</html>
