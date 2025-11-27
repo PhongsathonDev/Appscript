@@ -1,2 +1,35 @@
-// Code.gs
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle('ระบบเช็คชื่อวิทยาลัย')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
 
+// ฟังก์ชันดึงข้อมูลจาก Sheet ไปแสดงบนเว็บ
+function getAttendanceData() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Data');
+  const data = sheet.getDataRange().getValues();
+  const headers = data.shift(); // เอาหัวตารางออก
+
+  // แปลงข้อมูลเป็น Object เพื่อให้ใช้งานง่าย
+  const students = data.map(row => {
+    return {
+      timestamp: row[0],
+      id: row[1],
+      name: row[2],
+      dept: row[3],
+      status: row[4]
+    };
+  });
+
+  // คำนวณสรุปยอด (Summary)
+  const summary = {
+    total: students.length,
+    present: students.filter(s => s.status === 'มา').length,
+    late: students.filter(s => s.status === 'สาย').length,
+    absent: students.filter(s => s.status === 'ขาด').length,
+    leave: students.filter(s => s.status === 'ลา').length
+  };
+
+  return { summary: summary, list: students.reverse().slice(0, 10) }; // ส่งกลับยอดสรุป และรายชื่อล่าสุด 10 คน
+}
